@@ -120,30 +120,42 @@ python cstr_simulation.py
 ```
 ---
 
+---
+
 ## Simulation Results & Dynamic Response
 
 ![CSTR Dynamic Response](cstr_dynamics_plot.png)
 
-### 1. Concentration Dynamics ($C_A$)
-* **Transient Phase:** At $t = 0$, reactant concentration is $0.0\text{ mol/L}$ as the reactor starts filled with pure solvent. As feed enters at $C_{A0} = 5.0\text{ mol/L}$, concentration climbs rapidly during the first $5\text{ to }10\text{ minutes}$.
-* **Steady-State Conversion:** The concentration stabilizes near $1.25\text{ mol/L}$ instead of reaching the inlet $5.0\text{ mol/L}$. This demonstrates continuous dynamic equilibrium between reactant addition and catalytic decomposition:
-  $$
-  X = 1 - \frac{C_A}{C_{A0}} = 1 - \frac{1.25}{5.00} = 0.75 \implies 75\% \text{ steady-state conversion}
-  $$
+### 1. Induction & Peroxide Accumulation ($0 \le t \le 16\text{ min}$)
+* **Slow Initial Kinetics:** Starting at room temperature ($T(0) = 298.15\text{ K}$), the initial reaction rate constant $k(T)$ is low. Incoming reactant enters at $C_{A0} = 5.0\text{ mol/L}$ significantly faster than it can decompose.
+* **Inventory Buildup:** Unreacted hydrogen peroxide accumulates continuously inside the vessel, reaching a dangerous peak concentration of $3.2\text{ mol/L}$ around minute $16$. During this induction phase, the reactor temperature rises gradually from $298.15\text{ K}$ to $\sim 320\text{ K}$.
 
-### 2. Thermal Dynamics ($T$)
-* **Initial Transient:** Starting at $T(0) = 298.15\text{ K}$, the reactor initially transfers heat outward to the colder cooling jacket ($T_{\text{cool}} = 290.0\text{ K}$).
-* **Exothermic Compensation:** As peroxide builds up and decomposition proceeds, the exothermic reaction enthalpy ($\Delta H = -98.2\text{ kJ/mol}$) supplies heat to the aqueous volume.
-* **Thermal Equilibrium:** The core temperature stabilizes near $312.4\text{ K}$ ($39.2^\circ\text{C}$). At nominal throughput ($\tau = 10.0\text{ min}$), the combination of convective fluid turnover and jacket cooling ($UA = 3000.0\text{ J/(min}\cdot\text{K)}$) safely dissipates reaction heat.
-* **Safety Threshold Margin:** Operating temperature remains well below the aqueous boiling limit of $373.15\text{ K}$ (dashed black line), confirming safe, stable operation under nominal design parameters.
+### 2. The Thermal Runaway Spike ($t \approx 17.5\text{ to } 19\text{ min}$)
+* **The Arrhenius Tipping Point:** Around $17.5\text{ minutes}$, the core temperature surpasses $\sim 330\text{ K}$. At this point, exponential heat generation outpaces the linear heat removal capacity of the jacket ($UA(T - T_{\text{cool}})$).
+* **Thermal Explosion:** The accumulated $3.2\text{ mol/L}$ reservoir of $H_2O_2$ rapidly decomposes. Core temperature rises almost vertically from $325\text{ K}$ to nearly $395\text{ K}$ in less than two minutes, reaching temperatrues much higher than the aqueous boiling limit of $373.15\text{ K}$ ($100^\circ\text{C}$).
+
+### 3. Reactant Depletion & Upper "Ignited" Steady State ($t > 20\text{ min}$)
+* **Flash Consumption:** Reactant concentration plummets from $3.2\text{ mol/L}$ to virtually zero ($\approx 0.02\text{ mol/L}$) as the decomposition rate becomeses nearly instantaneous.
+* **High-Temperature Plateau:** With the inventory exhausted, the system transitions to an ignited upper steady-state branch. Fresh incoming peroxide decomposes immediately upon entering, sustaining an elevated vessel temperature around $406\text{ K}$ ($133^\circ\text{C}$) where jacket cooling and outflow heat losses finally balance fresh feed generation.
 
 ---
 
 ## Process Safety & Engineering Takeaways
 
-* **Convective Dilution as a Heat Sink:** At $q = 10.0\text{ L/min}$ ($\tau = 10.0\text{ min}$), continuous fluid throughput removes sensible heat and prevents peroxide accumulation from driving the Arrhenius term into runaway.
-* **Sensitivity to Flow Disruptions:** If feed flow drops, residence time ($\tau = V/q$) increases proportionally. Longer exposure allows peroxide to react completely inside the vessel, accelerating heat generation beyond the cooling jacket's linear capacity.
-* **Interlock Recommendations:** In an industrial plant setting, passive wall conduction should be paired with active emergency interlocks:
-  1. High-temperature alarm trip at $330.0\text{ K}$ ($56.8^\circ\text{C}$).
-  2. Automated feed pump cutoff to isolate incoming reactants.
-  3. Emergency cold-water or chemical inhibitor quench loop activated if the rate of temperature rise $\frac{dT}{dt}$ exceeds design limits.
+* **False Sense of Security During Induction:** The long induction period ($\sim 16\text{ minutes}$) illustrates why thermal runaways are industrially hazardous. The slow initial temperature rise gives operators a false impression of stability while reactant inventory silently accumulates to critical levels.
+* **Boiling & Overpressurization Risk:** Reaching $406\text{ K}$ means a real aqueous system would violently boil, generating rapid steam and non-condensable oxygen gas ($O_2$), risking catastrophic vessel overpressurization if relief vents are undersized.
+* **Safety Recommendations:**
+  1. **Early Trigger Interlocks:** Emergency shutdown protocols cannot wait for boiling temperatures; automated emergency feed shutoffs must trigger early during the induction curve (e.g., if $T > 325\text{ K}$ or if $\frac{dT}{dt} > 2.0\text{ K/min}$).
+  2. **Increased Heat Transfer Margin:** The baseline jacket capacity ($UA = 3000\text{ J/(min}\cdot\text{K)}$) is insufficient to prevent ignition under this feed rate. Preventing runaway requires either pre-cooling the feed, lowering feed concentration, or expanding heat exchange area.
+
+## References
+
+1. **Fogler, H. S.** (2016). *Elements of Chemical Reaction Engineering* (5th ed.). Prentice Hall. (Chapter 8: Steady-State Nonisothermal Reactor Design & Multiple Steady States).
+2. **Levenspiel, O.** (1999). *Chemical Reaction Engineering* (3rd ed.). John Wiley & Sons.
+3. **NIST Chemistry WebBook**. *Hydrogen Peroxide Decomposition Thermochemistry & Reaction Kinetics*, SRD 69.
+
+---
+
+## License
+
+Distributed under the MIT License. See `LICENSE` for more information.
